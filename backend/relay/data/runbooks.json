@@ -1,0 +1,86 @@
+[
+  {
+    "id": "RB-01",
+    "category": "saturation",
+    "title": "Capacity before scaling",
+    "owner": "Platform",
+    "revision": "2026-09-14",
+    "symptoms": "CPU throttling memory OOM latency resource saturation capacity traffic concurrency autoscaler",
+    "checks": [
+      "Compare request rate, p95 latency and CPU throttling over the same five-minute window.",
+      "Inspect memory limits and recent OOM kills before increasing replicas.",
+      "Check whether downstream capacity can support more workers."
+    ],
+    "action": "If load is the cause, increase capacity gradually and watch downstream error rates. If memory rises without traffic, investigate the allocation change first."
+  },
+  {
+    "id": "RB-02",
+    "category": "deployment",
+    "title": "Contain a release regression",
+    "owner": "Delivery",
+    "revision": "2026-09-21",
+    "symptoms": "deployment rollout release regression image canary configuration readiness crash errors",
+    "checks": [
+      "Compare errors between the current and previous revision.",
+      "Check release notes, configuration changes and readiness probe failures.",
+      "Confirm that the previous revision is compatible with current data."
+    ],
+    "action": "Pause the rollout. Propose a rollback only after checking data compatibility; have the incident lead approve it."
+  },
+  {
+    "id": "RB-03",
+    "category": "database",
+    "title": "Trace the database bottleneck",
+    "owner": "Data platform",
+    "revision": "2026-09-18",
+    "symptoms": "MongoDB DynamoDB query connection pool replication index database timeout read write throttle partition",
+    "checks": [
+      "Separate connection wait time from query execution time.",
+      "Inspect slow query plans, index coverage and hot partitions.",
+      "Check primary health and replication lag before changing read preferences."
+    ],
+    "action": "Capture the offending query or partition key. Propose an index or capacity change using the evidence; do not restart the database as a first step."
+  },
+  {
+    "id": "RB-04",
+    "category": "network",
+    "title": "Follow the failing hop",
+    "owner": "Platform",
+    "revision": "2026-09-09",
+    "symptoms": "DNS TLS certificate handshake connection timeout network route upstream proxy gateway packet loss",
+    "checks": [
+      "Resolve the dependency hostname from the affected workload.",
+      "Inspect certificate validity and the full trust chain.",
+      "Compare connectivity from the workload and a known healthy peer."
+    ],
+    "action": "Identify the first failing hop, then propose the smallest DNS, certificate or routing correction. Verify from the affected workload."
+  },
+  {
+    "id": "RB-05",
+    "category": "queue",
+    "title": "Recover a stalled consumer",
+    "owner": "Integrations",
+    "revision": "2026-09-25",
+    "symptoms": "SQS Celery EventBridge Redis queue backlog message oldest consumer worker broker visibility redelivery dead letter",
+    "checks": [
+      "Compare arrival rate, consumer throughput and oldest-message age.",
+      "Inspect worker logs and dead-letter samples without logging payload secrets.",
+      "Check target permissions and visibility timeout against processing duration."
+    ],
+    "action": "Restore the consumer or target permission first. Replay a small dead-letter sample after the cause is fixed, preserving event IDs."
+  },
+  {
+    "id": "RB-06",
+    "category": "authentication",
+    "title": "Verify identity and permissions",
+    "owner": "Security engineering",
+    "revision": "2026-09-12",
+    "symptoms": "IAM OAuth JWT token issuer authentication authorization credentials access denied forbidden 401 403 secret",
+    "checks": [
+      "Distinguish expired or invalid identity (401) from denied permission (403).",
+      "Check issuer, audience, signing key rotation and credential expiry.",
+      "Inspect the effective IAM policy and resource scope for the failing principal."
+    ],
+    "action": "Correct the specific credential or policy scope. Avoid granting broad wildcard permissions to clear the error."
+  }
+]

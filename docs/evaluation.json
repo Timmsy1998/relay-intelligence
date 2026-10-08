@@ -1,0 +1,132 @@
+{
+  "model_version": "tfidf-logreg-v1",
+  "training_digest": "b346d39aef3d",
+  "dataset": "12 curated synthetic held-out alerts; not production validation",
+  "classification_accuracy": 1.0,
+  "coverage": 1.0,
+  "report": {
+    "authentication": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "database": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "deployment": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "network": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "queue": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "saturation": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 12.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 12.0
+    }
+  },
+  "results": [
+    {
+      "expected": "saturation",
+      "predicted": "saturation",
+      "abstained": false,
+      "score": 0.766
+    },
+    {
+      "expected": "saturation",
+      "predicted": "saturation",
+      "abstained": false,
+      "score": 0.552
+    },
+    {
+      "expected": "deployment",
+      "predicted": "deployment",
+      "abstained": false,
+      "score": 0.485
+    },
+    {
+      "expected": "deployment",
+      "predicted": "deployment",
+      "abstained": false,
+      "score": 0.666
+    },
+    {
+      "expected": "database",
+      "predicted": "database",
+      "abstained": false,
+      "score": 0.696
+    },
+    {
+      "expected": "database",
+      "predicted": "database",
+      "abstained": false,
+      "score": 0.357
+    },
+    {
+      "expected": "network",
+      "predicted": "network",
+      "abstained": false,
+      "score": 0.361
+    },
+    {
+      "expected": "network",
+      "predicted": "network",
+      "abstained": false,
+      "score": 0.369
+    },
+    {
+      "expected": "queue",
+      "predicted": "queue",
+      "abstained": false,
+      "score": 0.464
+    },
+    {
+      "expected": "queue",
+      "predicted": "queue",
+      "abstained": false,
+      "score": 0.347
+    },
+    {
+      "expected": "authentication",
+      "predicted": "authentication",
+      "abstained": false,
+      "score": 0.472
+    },
+    {
+      "expected": "authentication",
+      "predicted": "authentication",
+      "abstained": false,
+      "score": 0.412
+    }
+  ]
+}

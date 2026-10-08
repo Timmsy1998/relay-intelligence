@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://relay.example/contracts/incident.submitted.v1",
+  "title": "Incident submitted v1", "type": "object", "additionalProperties": false,
+  "required": ["event_id", "event_type", "schema_version", "occurred_at", "incident_id"],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "event_type": {"const": "incident.submitted.v1"},
+    "schema_version": {"const": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "incident_id": {"type": "string", "format": "uuid"}
+  }
+}

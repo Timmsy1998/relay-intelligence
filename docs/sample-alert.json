@@ -1,0 +1,1 @@
+{"title":"Order consumer stopped processing events","service":"order-pipeline","severity":"P2","description":"SQS backlog is growing. The oldest message is eighteen minutes old and consumer throughput is zero. Worker logs show the broker disconnected; incoming publish rate is unchanged."}

@@ -1,0 +1,50 @@
+[
+  {
+    "text": "Request traffic doubled. CPU throttling across all replicas and p95 response time is now four seconds.",
+    "label": "saturation"
+  },
+  {
+    "text": "Heap usage keeps climbing until the pod is killed for exceeding memory limits.",
+    "label": "saturation"
+  },
+  {
+    "text": "Service started returning server errors right after the canary image was released.",
+    "label": "deployment"
+  },
+  {
+    "text": "The previous revision passes readiness, but the latest rollout fails health checks.",
+    "label": "deployment"
+  },
+  {
+    "text": "Mongo queries wait on pool connections and the database reports high read latency.",
+    "label": "database"
+  },
+  {
+    "text": "DynamoDB rejects reads on a hot partition because provisioned throughput is exceeded.",
+    "label": "database"
+  },
+  {
+    "text": "The upstream hostname no longer resolves. DNS requests fail from otherwise healthy containers.",
+    "label": "network"
+  },
+  {
+    "text": "Certificate renewal failed and the proxy rejects TLS handshakes.",
+    "label": "network"
+  },
+  {
+    "text": "Oldest SQS message is twenty minutes old and the consumer has stopped acknowledging work.",
+    "label": "queue"
+  },
+  {
+    "text": "Celery jobs are waiting because the broker connection keeps disconnecting.",
+    "label": "queue"
+  },
+  {
+    "text": "The token issuer changed and clients get unauthorized responses during JWT verification.",
+    "label": "authentication"
+  },
+  {
+    "text": "The worker IAM policy is missing access to the secret and returns forbidden.",
+    "label": "authentication"
+  }
+]

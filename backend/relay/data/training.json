@@ -1,0 +1,194 @@
+[
+  {
+    "text": "API latency increased while CPU utilisation reached 98 percent and request throughput is rising",
+    "label": "saturation"
+  },
+  {
+    "text": "Worker memory is exhausted containers are OOM killed under heavy traffic",
+    "label": "saturation"
+  },
+  {
+    "text": "Checkout response time is slow all pods show CPU throttling during peak load",
+    "label": "saturation"
+  },
+  {
+    "text": "Autoscaler at maximum replicas and web servers cannot keep up with incoming requests",
+    "label": "saturation"
+  },
+  {
+    "text": "Memory leak in the API causes repeated out of memory restarts as heap usage grows",
+    "label": "saturation"
+  },
+  {
+    "text": "P95 latency spike coincides with saturated CPU cores and resource limits",
+    "label": "saturation"
+  },
+  {
+    "text": "Application pool is at capacity threads blocked request concurrency too high",
+    "label": "saturation"
+  },
+  {
+    "text": "Containers running out of RAM during traffic burst high memory consumption",
+    "label": "saturation"
+  },
+  {
+    "text": "New release introduced HTTP 500 errors immediately after deployment previous version was healthy",
+    "label": "deployment"
+  },
+  {
+    "text": "Canary rollout fails readiness probes after changing application configuration",
+    "label": "deployment"
+  },
+  {
+    "text": "Regression after deploying new image errors only present in the latest revision",
+    "label": "deployment"
+  },
+  {
+    "text": "Production release crashes on startup missing environment variable in deployment",
+    "label": "deployment"
+  },
+  {
+    "text": "Application health check failing following configuration rollout rollback needed",
+    "label": "deployment"
+  },
+  {
+    "text": "Error rate increased after feature flag enabled in the latest release",
+    "label": "deployment"
+  },
+  {
+    "text": "New build introduced incompatible schema change old image still works",
+    "label": "deployment"
+  },
+  {
+    "text": "Deployment pipeline published broken image pods in crash loop since release",
+    "label": "deployment"
+  },
+  {
+    "text": "MongoDB queries timing out connection pool exhausted waiting for database connections",
+    "label": "database"
+  },
+  {
+    "text": "Database replication lag rising secondary nodes behind primary writes",
+    "label": "database"
+  },
+  {
+    "text": "DynamoDB throttled read requests provisioned capacity exceeded hot partition",
+    "label": "database"
+  },
+  {
+    "text": "Slow queries collection scan missing index database read latency increased",
+    "label": "database"
+  },
+  {
+    "text": "Mongo primary election interrupted writes client server selection timeout",
+    "label": "database"
+  },
+  {
+    "text": "Database connection refused all queries fail primary node unavailable",
+    "label": "database"
+  },
+  {
+    "text": "Document store reports write conflicts during concurrent database transactions",
+    "label": "database"
+  },
+  {
+    "text": "Database query latency elevated Mongo connections saturated and indexes missing",
+    "label": "database"
+  },
+  {
+    "text": "DNS resolution fails for upstream service hostname cannot be resolved",
+    "label": "network"
+  },
+  {
+    "text": "TLS certificate expired HTTPS handshake failing between services",
+    "label": "network"
+  },
+  {
+    "text": "Upstream connection timed out packet loss network route unavailable",
+    "label": "network"
+  },
+  {
+    "text": "Gateway returns 502 load balancer cannot connect to healthy application pods",
+    "label": "network"
+  },
+  {
+    "text": "Connection reset by peer firewall blocks outbound requests to dependency",
+    "label": "network"
+  },
+  {
+    "text": "Name resolution intermittent DNS resolver slow networking failures",
+    "label": "network"
+  },
+  {
+    "text": "External service unreachable socket timeout security group denies traffic",
+    "label": "network"
+  },
+  {
+    "text": "TLS handshake errors certificate chain invalid proxy routing failure",
+    "label": "network"
+  },
+  {
+    "text": "SQS queue backlog growing oldest message age increasing consumers are not processing",
+    "label": "queue"
+  },
+  {
+    "text": "Celery tasks stuck pending Redis broker unavailable no workers consuming messages",
+    "label": "queue"
+  },
+  {
+    "text": "Dead letter queue filling after repeated message processing failures",
+    "label": "queue"
+  },
+  {
+    "text": "EventBridge events not delivered to target rule missing permissions",
+    "label": "queue"
+  },
+  {
+    "text": "Worker throughput lower than publish rate queue depth keeps rising",
+    "label": "queue"
+  },
+  {
+    "text": "SQS messages repeatedly redelivered visibility timeout too short duplicate processing",
+    "label": "queue"
+  },
+  {
+    "text": "Asynchronous job backlog consumer stopped acknowledging events",
+    "label": "queue"
+  },
+  {
+    "text": "Celery broker disconnected delayed task delivery retry storm in worker queue",
+    "label": "queue"
+  },
+  {
+    "text": "API returns 401 token expired authentication failures across clients",
+    "label": "authentication"
+  },
+  {
+    "text": "IAM access denied worker role lacks permission to publish events",
+    "label": "authentication"
+  },
+  {
+    "text": "Users cannot sign in identity provider rejects expired credentials",
+    "label": "authentication"
+  },
+  {
+    "text": "HTTP 403 forbidden requests policy denies service account access",
+    "label": "authentication"
+  },
+  {
+    "text": "JWT signature verification failing after rotating signing keys",
+    "label": "authentication"
+  },
+  {
+    "text": "Secrets rotation invalidated API credentials authentication errors",
+    "label": "authentication"
+  },
+  {
+    "text": "OAuth callback rejected invalid audience token issuer mismatch",
+    "label": "authentication"
+  },
+  {
+    "text": "Permission denied reading secret resource IAM role trust policy wrong",
+    "label": "authentication"
+  }
+]
