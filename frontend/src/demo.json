@@ -1,0 +1,303 @@
+[
+  {
+    "id": "398c1e27-b5a2-5963-9781-ebb71e40bb63",
+    "title": "Checkout latency climbs during the evening peak",
+    "service": "checkout-api",
+    "severity": "P1",
+    "description": "P95 response time rose from 240ms to 3.8s. CPU utilisation is 97% across all pods with sustained CPU throttling. Traffic is twice the normal request rate and the autoscaler is at maximum replicas. Error rate remains below 1%.",
+    "created_at": "2026-10-08T14:24:00+00:00",
+    "status": "ready",
+    "version": 2,
+    "analysis": {
+      "model_version": "tfidf-logreg-v1",
+      "training_digest": "b346d39aef3d",
+      "category": "saturation",
+      "suggested_category": "saturation",
+      "score": 0.847,
+      "margin": 0.806,
+      "abstained": false,
+      "summary": "Signals most closely match saturation. Start with \u2018Capacity before scaling\u2019.",
+      "recommendation": "If load is the cause, increase capacity gradually and watch downstream error rates. If memory rises without traffic, investigate the allocation change first.",
+      "checks": [
+        "Compare request rate, p95 latency and CPU throttling over the same five-minute window.",
+        "Inspect memory limits and recent OOM kills before increasing replicas.",
+        "Check whether downstream capacity can support more workers."
+      ],
+      "evidence": [
+        {
+          "id": "RB-01",
+          "category": "saturation",
+          "title": "Capacity before scaling",
+          "owner": "Platform",
+          "revision": "2026-09-14",
+          "symptoms": "CPU throttling memory OOM latency resource saturation capacity traffic concurrency autoscaler",
+          "checks": [
+            "Compare request rate, p95 latency and CPU throttling over the same five-minute window.",
+            "Inspect memory limits and recent OOM kills before increasing replicas.",
+            "Check whether downstream capacity can support more workers."
+          ],
+          "action": "If load is the cause, increase capacity gradually and watch downstream error rates. If memory rises without traffic, investigate the allocation change first.",
+          "similarity": 0.343
+        }
+      ],
+      "score_note": "Model score is uncalibrated; it is not a probability that the diagnosis is correct."
+    },
+    "review": null,
+    "timeline": [
+      {
+        "at": "2026-10-08T14:24:00+00:00",
+        "label": "Incident received"
+      },
+      {
+        "at": "2026-10-08T14:24:02+00:00",
+        "label": "Evidence and classification ready"
+      }
+    ]
+  },
+  {
+    "id": "a4c98779-ff7d-5691-a239-5cbddd174036",
+    "title": "Order events waiting for a consumer",
+    "service": "order-pipeline",
+    "severity": "P2",
+    "description": "SQS queue backlog has reached 12,400 messages. Oldest message age is 18 minutes and rising. Consumer throughput dropped to zero after the worker disconnected from the broker. Incoming publish rate is unchanged.",
+    "created_at": "2026-10-08T13:24:00+00:00",
+    "status": "ready",
+    "version": 2,
+    "analysis": {
+      "model_version": "tfidf-logreg-v1",
+      "training_digest": "b346d39aef3d",
+      "category": "queue",
+      "suggested_category": "queue",
+      "score": 0.698,
+      "margin": 0.597,
+      "abstained": false,
+      "summary": "Signals most closely match queue. Start with \u2018Recover a stalled consumer\u2019.",
+      "recommendation": "Restore the consumer or target permission first. Replay a small dead-letter sample after the cause is fixed, preserving event IDs.",
+      "checks": [
+        "Compare arrival rate, consumer throughput and oldest-message age.",
+        "Inspect worker logs and dead-letter samples without logging payload secrets.",
+        "Check target permissions and visibility timeout against processing duration."
+      ],
+      "evidence": [
+        {
+          "id": "RB-05",
+          "category": "queue",
+          "title": "Recover a stalled consumer",
+          "owner": "Integrations",
+          "revision": "2026-09-25",
+          "symptoms": "SQS Celery EventBridge Redis queue backlog message oldest consumer worker broker visibility redelivery dead letter",
+          "checks": [
+            "Compare arrival rate, consumer throughput and oldest-message age.",
+            "Inspect worker logs and dead-letter samples without logging payload secrets.",
+            "Check target permissions and visibility timeout against processing duration."
+          ],
+          "action": "Restore the consumer or target permission first. Replay a small dead-letter sample after the cause is fixed, preserving event IDs.",
+          "similarity": 0.422
+        },
+        {
+          "id": "RB-04",
+          "category": "network",
+          "title": "Follow the failing hop",
+          "owner": "Platform",
+          "revision": "2026-09-09",
+          "symptoms": "DNS TLS certificate handshake connection timeout network route upstream proxy gateway packet loss",
+          "checks": [
+            "Resolve the dependency hostname from the affected workload.",
+            "Inspect certificate validity and the full trust chain.",
+            "Compare connectivity from the workload and a known healthy peer."
+          ],
+          "action": "Identify the first failing hop, then propose the smallest DNS, certificate or routing correction. Verify from the affected workload.",
+          "similarity": 0.083
+        }
+      ],
+      "score_note": "Model score is uncalibrated; it is not a probability that the diagnosis is correct."
+    },
+    "review": null,
+    "timeline": [
+      {
+        "at": "2026-10-08T13:24:00+00:00",
+        "label": "Incident received"
+      },
+      {
+        "at": "2026-10-08T13:24:02+00:00",
+        "label": "Evidence and classification ready"
+      }
+    ]
+  },
+  {
+    "id": "7c9eaa9f-b7f6-55c1-b426-92d9f015ab4b",
+    "title": "MongoDB reads wait on connection capacity",
+    "service": "catalogue",
+    "severity": "P2",
+    "description": "Database read latency is elevated. Mongo queries wait up to 4 seconds for a connection pool slot. Slow query logs show a collection scan and missing index on the product lookup. Replication lag is stable.",
+    "created_at": "2026-10-08T12:24:00+00:00",
+    "status": "ready",
+    "version": 2,
+    "analysis": {
+      "model_version": "tfidf-logreg-v1",
+      "training_digest": "b346d39aef3d",
+      "category": "database",
+      "suggested_category": "database",
+      "score": 0.773,
+      "margin": 0.692,
+      "abstained": false,
+      "summary": "Signals most closely match database. Start with \u2018Trace the database bottleneck\u2019.",
+      "recommendation": "Capture the offending query or partition key. Propose an index or capacity change using the evidence; do not restart the database as a first step.",
+      "checks": [
+        "Separate connection wait time from query execution time.",
+        "Inspect slow query plans, index coverage and hot partitions.",
+        "Check primary health and replication lag before changing read preferences."
+      ],
+      "evidence": [
+        {
+          "id": "RB-03",
+          "category": "database",
+          "title": "Trace the database bottleneck",
+          "owner": "Data platform",
+          "revision": "2026-09-18",
+          "symptoms": "MongoDB DynamoDB query connection pool replication index database timeout read write throttle partition",
+          "checks": [
+            "Separate connection wait time from query execution time.",
+            "Inspect slow query plans, index coverage and hot partitions.",
+            "Check primary health and replication lag before changing read preferences."
+          ],
+          "action": "Capture the offending query or partition key. Propose an index or capacity change using the evidence; do not restart the database as a first step.",
+          "similarity": 0.396
+        },
+        {
+          "id": "RB-01",
+          "category": "saturation",
+          "title": "Capacity before scaling",
+          "owner": "Platform",
+          "revision": "2026-09-14",
+          "symptoms": "CPU throttling memory OOM latency resource saturation capacity traffic concurrency autoscaler",
+          "checks": [
+            "Compare request rate, p95 latency and CPU throttling over the same five-minute window.",
+            "Inspect memory limits and recent OOM kills before increasing replicas.",
+            "Check whether downstream capacity can support more workers."
+          ],
+          "action": "If load is the cause, increase capacity gradually and watch downstream error rates. If memory rises without traffic, investigate the allocation change first.",
+          "similarity": 0.088
+        }
+      ],
+      "score_note": "Model score is uncalibrated; it is not a probability that the diagnosis is correct."
+    },
+    "review": null,
+    "timeline": [
+      {
+        "at": "2026-10-08T12:24:00+00:00",
+        "label": "Incident received"
+      },
+      {
+        "at": "2026-10-08T12:24:02+00:00",
+        "label": "Evidence and classification ready"
+      }
+    ]
+  },
+  {
+    "id": "7dbfd65a-c59b-5974-b2e4-9b5b1b9f2db3",
+    "title": "New canary fails its readiness checks",
+    "service": "account-service",
+    "severity": "P2",
+    "description": "The new deployment image fails readiness probes and returns HTTP 500 errors on startup. The previous release is healthy. Errors began immediately after the configuration rollout changed a required environment variable.",
+    "created_at": "2026-10-08T11:24:00+00:00",
+    "status": "ready",
+    "version": 2,
+    "analysis": {
+      "model_version": "tfidf-logreg-v1",
+      "training_digest": "b346d39aef3d",
+      "category": "deployment",
+      "suggested_category": "deployment",
+      "score": 0.897,
+      "margin": 0.871,
+      "abstained": false,
+      "summary": "Signals most closely match deployment. Start with \u2018Contain a release regression\u2019.",
+      "recommendation": "Pause the rollout. Propose a rollback only after checking data compatibility; have the incident lead approve it.",
+      "checks": [
+        "Compare errors between the current and previous revision.",
+        "Check release notes, configuration changes and readiness probe failures.",
+        "Confirm that the previous revision is compatible with current data."
+      ],
+      "evidence": [
+        {
+          "id": "RB-02",
+          "category": "deployment",
+          "title": "Contain a release regression",
+          "owner": "Delivery",
+          "revision": "2026-09-21",
+          "symptoms": "deployment rollout release regression image canary configuration readiness crash errors",
+          "checks": [
+            "Compare errors between the current and previous revision.",
+            "Check release notes, configuration changes and readiness probe failures.",
+            "Confirm that the previous revision is compatible with current data."
+          ],
+          "action": "Pause the rollout. Propose a rollback only after checking data compatibility; have the incident lead approve it.",
+          "similarity": 0.427
+        }
+      ],
+      "score_note": "Model score is uncalibrated; it is not a probability that the diagnosis is correct."
+    },
+    "review": null,
+    "timeline": [
+      {
+        "at": "2026-10-08T11:24:00+00:00",
+        "label": "Incident received"
+      },
+      {
+        "at": "2026-10-08T11:24:02+00:00",
+        "label": "Evidence and classification ready"
+      }
+    ]
+  },
+  {
+    "id": "aa1a1b53-184c-5740-97cb-b4f0512b2ef9",
+    "title": "Unusual support report needs investigation",
+    "service": "customer-portal",
+    "severity": "P3",
+    "description": "A customer reports that their saved preferences appear different from yesterday. We do not have logs, reproduction steps or a clear time window yet.",
+    "created_at": "2026-10-08T10:24:00+00:00",
+    "status": "ready",
+    "version": 2,
+    "analysis": {
+      "model_version": "tfidf-logreg-v1",
+      "training_digest": "b346d39aef3d",
+      "category": "unclassified",
+      "suggested_category": "queue",
+      "score": 0.244,
+      "margin": 0.057,
+      "abstained": true,
+      "summary": "Insufficient matching evidence. Ask an engineer to investigate.",
+      "recommendation": null,
+      "checks": [],
+      "evidence": [
+        {
+          "id": "RB-03",
+          "category": "database",
+          "title": "Trace the database bottleneck",
+          "owner": "Data platform",
+          "revision": "2026-09-18",
+          "symptoms": "MongoDB DynamoDB query connection pool replication index database timeout read write throttle partition",
+          "checks": [
+            "Separate connection wait time from query execution time.",
+            "Inspect slow query plans, index coverage and hot partitions.",
+            "Check primary health and replication lag before changing read preferences."
+          ],
+          "action": "Capture the offending query or partition key. Propose an index or capacity change using the evidence; do not restart the database as a first step.",
+          "similarity": 0.17
+        }
+      ],
+      "score_note": "Model score is uncalibrated; it is not a probability that the diagnosis is correct."
+    },
+    "review": null,
+    "timeline": [
+      {
+        "at": "2026-10-08T10:24:00+00:00",
+        "label": "Incident received"
+      },
+      {
+        "at": "2026-10-08T10:24:02+00:00",
+        "label": "Evidence and classification ready"
+      }
+    ]
+  }
+]

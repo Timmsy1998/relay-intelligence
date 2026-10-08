@@ -1,0 +1,30 @@
+{
+  "name": "relay-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vue-tsc --noEmit && vite build",
+    "test": "vitest run",
+    "preview": "vite preview --host 0.0.0.0",
+    "smoke": "node tests/browser.mjs",
+    "format": "prettier --write src tests vite.config.ts index.html",
+    "format:check": "prettier --check src tests vite.config.ts index.html",
+    "smoke:live": "node tests/live.mjs"
+  },
+  "dependencies": {
+    "lucide-vue-next": "^0.468.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.13.0",
+    "@vitejs/plugin-vue": "^5.2.3",
+    "prettier": "^3.9.9",
+    "typescript": "~5.7.3",
+    "vite": "^6.2.0",
+    "vitest": "^5.0.3",
+    "vue-tsc": "^2.2.8"
+  }
+}
