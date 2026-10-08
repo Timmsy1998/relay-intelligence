@@ -1,0 +1,158 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Relay incident intelligence - container Lambdas and durable events
+Parameters:
+  RuntimeSecret:
+    Type: String
+    Description: Secrets Manager name with mongo_uri, api_token and django_secret_key fields
+  AllowedHost:
+    Type: String
+    Default: .execute-api.eu-west-2.amazonaws.com
+    Description: Django API Gateway hostname suffix; change for your AWS region or custom domain
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 1024
+    Architectures: [x86_64]
+    Environment:
+      Variables:
+        DJANGO_SETTINGS_MODULE: relay.settings
+        DJANGO_ALLOWED_HOSTS: !Ref AllowedHost
+        DJANGO_SECRET_KEY: !Sub '{{resolve:secretsmanager:${RuntimeSecret}:SecretString:django_secret_key}}'
+        RELAY_API_TOKEN: !Sub '{{resolve:secretsmanager:${RuntimeSecret}:SecretString:api_token}}'
+        MONGO_URI: !Sub '{{resolve:secretsmanager:${RuntimeSecret}:SecretString:mongo_uri}}'
+        MONGO_DATABASE: relay
+        EVENT_TRANSPORT: eventbridge
+        EVENT_BUS_NAME: !Ref EventBus
+        LEDGER_BACKEND: dynamo
+        JOBS_TABLE: !Ref JobsTable
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 30
+        ThrottlingRateLimit: 10
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub '${AWS::StackName}-incidents'
+  JobsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: [{ AttributeName: event_id, AttributeType: S }]
+      KeySchema: [{ AttributeName: event_id, KeyType: HASH }]
+      PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: true }
+      SSESpecification: { SSEEnabled: true }
+  DeadLetters:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+  WorkQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 360
+      MessageRetentionPeriod: 345600
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetters.Arn
+        maxReceiveCount: 5
+  IncidentRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: !Ref EventBus
+      EventPattern:
+        source: [relay.incidents]
+        detail-type: [incident.submitted.v1]
+      Targets:
+        - Id: IncidentQueue
+          Arn: !GetAtt WorkQueue.Arn
+          DeadLetterConfig: { Arn: !GetAtt DeadLetters.Arn }
+          RetryPolicy: { MaximumRetryAttempts: 20, MaximumEventAgeInSeconds: 86400 }
+  QueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues: [!Ref WorkQueue, !Ref DeadLetters]
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: events.amazonaws.com }
+            Action: sqs:SendMessage
+            Resource: [!GetAtt WorkQueue.Arn, !GetAtt DeadLetters.Arn]
+            Condition:
+              ArnEquals: { 'aws:SourceArn': !GetAtt IncidentRule.Arn }
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Metadata: { DockerContext: ../.., Dockerfile: infra/aws/Dockerfile, DockerTag: relay-api }
+    Properties:
+      PackageType: Image
+      ImageConfig: { Command: [relay.lambda_handlers.api] }
+      ReservedConcurrentExecutions: 5
+      Events:
+        Api:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: '/{proxy+}', Method: ANY }
+  OutboxFunction:
+    Type: AWS::Serverless::Function
+    Metadata: { DockerContext: ../.., Dockerfile: infra/aws/Dockerfile, DockerTag: relay-outbox }
+    Properties:
+      PackageType: Image
+      ImageConfig: { Command: [relay.lambda_handlers.outbox] }
+      ReservedConcurrentExecutions: 1
+      Policies:
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref EventBus }
+      Events:
+        Sweep:
+          Type: Schedule
+          Properties: { Schedule: 'rate(1 minute)' }
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Metadata: { DockerContext: ../.., Dockerfile: infra/aws/Dockerfile, DockerTag: relay-worker }
+    Properties:
+      PackageType: Image
+      ImageConfig: { Command: [relay.lambda_handlers.worker] }
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref JobsTable }
+      Events:
+        Queue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt WorkQueue.Arn
+            BatchSize: 1
+            FunctionResponseTypes: [ReportBatchItemFailures]
+            ScalingConfig: { MaximumConcurrency: 5 }
+  DeadLetterAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Relay messages need investigation and replay
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions: [{ Name: QueueName, Value: !GetAtt DeadLetters.QueueName }]
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+  QueueAgeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Relay processing lag exceeds five minutes
+      Namespace: AWS/SQS
+      MetricName: ApproximateAgeOfOldestMessage
+      Dimensions: [{ Name: QueueName, Value: !GetAtt WorkQueue.QueueName }]
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 3
+      Threshold: 300
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+Outputs:
+  ApiUrl:
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+  WorkQueueUrl: { Value: !Ref WorkQueue }
+  DeadLetterQueueUrl: { Value: !Ref DeadLetters }

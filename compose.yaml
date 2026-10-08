@@ -1,0 +1,49 @@
+x-backend: &backend
+  build: .
+  env_file: .env
+  restart: unless-stopped
+  depends_on:
+    mongo: { condition: service_healthy }
+    redis: { condition: service_healthy }
+services:
+  api:
+    <<: *backend
+    ports: ["127.0.0.1:8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready/')"]
+      interval: 10s
+      timeout: 6s
+      retries: 5
+  worker:
+    <<: *backend
+    command: ["celery", "-A", "relay.tasks:app", "worker", "--loglevel=INFO", "--concurrency=2"]
+  dispatcher:
+    <<: *backend
+    # Exactly one beat scheduler locally. Delivery itself remains retry-safe.
+    command: ["celery", "-A", "relay.tasks:app", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+  frontend:
+    build: frontend
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+  mongo:
+    image: mongo:8.0
+    volumes: ["mongo-data:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  mongo-data:
+  redis-data:

@@ -1,0 +1,17 @@
+version: 2.1
+jobs:
+  python:
+    docker: [{ image: 'cimg/python:3.12' }]
+    steps:
+      - checkout
+      - run: pip install -r requirements-dev.lock && pip install --no-deps -e .
+      - run: ruff check backend scripts && ruff format --check backend scripts
+      - run: pytest -q && python scripts/check_infra.py
+  frontend:
+    docker: [{ image: 'cimg/node:22.14' }]
+    steps:
+      - checkout
+      - run: cd frontend && npm ci && npm run format:check && npm test && npm run build
+workflows:
+  verify:
+    jobs: [python, frontend]
